@@ -30,7 +30,6 @@ export class MutationController {
     const mutationExists = MutationController.hasMutation(
       createMutationDto.dna,
     );
-    console.log(mutationExists);
     createMutationDto.hasMutation = mutationExists.mutation;
 
     if (mutationExists.mutation) {

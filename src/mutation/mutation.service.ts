@@ -4,6 +4,7 @@ import { UpdateMutationDto } from './dto/update-mutation.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Mutation, MutationDocument } from './schemas/mutation.schema';
 import { Model } from 'mongoose';
+import { ResponseStatsDto } from './dto/response-stats.dto';
 
 @Injectable()
 export class MutationService {
@@ -16,7 +17,13 @@ export class MutationService {
   }
 
   async findAll() {
-    const aggregation = await this.mutationModel
+    const aggregationObj: ResponseStatsDto = {
+      count_mutations: 0,
+      count_no_mutations: 0,
+      ratio: 0,
+    };
+
+    let aggregation: any = await this.mutationModel
       .aggregate([
         {
           $group: {
@@ -32,12 +39,26 @@ export class MutationService {
       ])
       .exec();
 
-    const aggregationObj = aggregation.pop();
-    return {
-      count_mutations: aggregationObj.count_mutations,
-      count_no_mutations: aggregationObj.count_no_mutations,
-      ratio: aggregationObj.count_mutations / aggregationObj.count_no_mutations,
-    };
+    aggregation = aggregation.pop();
+
+    if (aggregation && aggregation.count_mutations) {
+      aggregationObj.count_mutations = aggregation.count_mutations;
+    }
+
+    if (aggregation && aggregation.count_no_mutations) {
+      aggregationObj.count_no_mutations = aggregation.count_no_mutations;
+    }
+
+    if (
+      aggregation &&
+      aggregation.count_mutations &&
+      aggregation.count_no_mutations
+    ) {
+      aggregationObj.ratio =
+        aggregation.count_mutations / aggregation.count_no_mutations;
+    }
+
+    return aggregationObj;
   }
 
   findOne(id: number) {
