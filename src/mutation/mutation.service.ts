@@ -1,11 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMutationDto } from './dto/create-mutation.dto';
 import { UpdateMutationDto } from './dto/update-mutation.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Mutation, MutationDocument } from './schemas/mutation.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class MutationService {
+  constructor(
+    @InjectModel(Mutation.name) private mutationModel: Model<MutationDocument>,
+  ) {}
   create(createMutationDto: CreateMutationDto) {
-    return 'This action adds a new mutation';
+    const createMutation = new this.mutationModel(createMutationDto);
+    return createMutation.save();
   }
 
   findAll() {
@@ -22,5 +29,9 @@ export class MutationService {
 
   remove(id: number) {
     return `This action removes a #${id} mutation`;
+  }
+
+  findByDna(dnaArray: [string]): any {
+    return this.mutationModel.findOne({ dna: { $all: dnaArray } });
   }
 }

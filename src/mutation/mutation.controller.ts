@@ -10,25 +10,37 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { MutationService } from './mutation.service';
-import { CreateMutationDto } from './dto/create-mutation.dto';
 import { UpdateMutationDto } from './dto/update-mutation.dto';
+import { CreateMutationDto } from './dto/create-mutation.dto';
 
 @Controller('mutation')
 export class MutationController {
   constructor(private readonly mutationService: MutationService) {}
 
   @Post()
-  create(@Body() createMutationDto: CreateMutationDto, @Res() response) {
-    const mutationExists = this.hasMutation(createMutationDto.dna);
+  async create(@Body() createMutationDto: CreateMutationDto, @Res() response) {
+    const dnaEvaluated = await this.mutationService.findByDna(
+      createMutationDto.dna,
+    );
+
+    if (dnaEvaluated) {
+      return response.status(HttpStatus.FORBIDDEN).send();
+    }
+
+    const mutationExists = MutationController.hasMutation(
+      createMutationDto.dna,
+    );
+    createMutationDto.hasMutation = mutationExists.mutation;
 
     if (mutationExists.mutation) {
+      await this.mutationService.create(createMutationDto);
       return response.status(HttpStatus.OK).send();
     }
 
     if (!mutationExists.mutation) {
+      await this.mutationService.create(createMutationDto);
       return response.status(HttpStatus.FORBIDDEN).send();
     }
-    //return this.mutationService.create(createMutationDto);
   }
 
   @Get()
@@ -54,7 +66,7 @@ export class MutationController {
     return this.mutationService.remove(+id);
   }
 
-  hasMutation(s) {
+  private static hasMutation(s) {
     for (let i = 0; i < s.length; i++) {
       const rowToArray = s[i].split('');
       const rowLimit = rowToArray.length + 1;
