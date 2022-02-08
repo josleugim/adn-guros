@@ -32,6 +32,9 @@
 $ npm install
 ```
 
+## Environment variables
+Create a .env file in the root directory. The value of the DATABASE key is given at email
+
 ## Running the app
 
 ```bash
