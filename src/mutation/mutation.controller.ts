@@ -30,6 +30,7 @@ export class MutationController {
     const mutationExists = MutationController.hasMutation(
       createMutationDto.dna,
     );
+    console.log(mutationExists);
     createMutationDto.hasMutation = mutationExists.mutation;
 
     if (mutationExists.mutation) {
@@ -67,6 +68,8 @@ export class MutationController {
   }
 
   private static hasMutation(s) {
+    let verticalMutation, horizontalMutation, oblique1, oblique2;
+
     for (let i = 0; i < s.length; i++) {
       const rowToArray = s[i].split('');
       const rowLimit = rowToArray.length + 1;
@@ -81,6 +84,8 @@ export class MutationController {
               adn: s[i],
               mutation: true,
             };
+          } else {
+            verticalMutation = false;
           }
         }
 
@@ -98,6 +103,8 @@ export class MutationController {
                 s[3].split('')[j],
               mutation: true,
             };
+          } else {
+            horizontalMutation = false;
           }
         }
       }
@@ -120,6 +127,8 @@ export class MutationController {
                 s[i + 3].split('')[j - 3],
               mutation: true,
             };
+          } else {
+            oblique1 = false;
           }
         }
       }
@@ -142,9 +151,18 @@ export class MutationController {
                 s[i + 3].split('')[j + 3],
               mutation: true,
             };
+          } else {
+            oblique2 = false;
           }
         }
       }
+    }
+
+    if (!verticalMutation && !horizontalMutation && !oblique1 && !oblique2) {
+      return {
+        dna: [],
+        mutation: false,
+      };
     }
   }
 }

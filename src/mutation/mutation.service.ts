@@ -15,8 +15,29 @@ export class MutationService {
     return createMutation.save();
   }
 
-  findAll() {
-    return `This action returns all mutation`;
+  async findAll() {
+    const aggregation = await this.mutationModel
+      .aggregate([
+        {
+          $group: {
+            _id: null,
+            count_mutations: {
+              $sum: { $cond: ['$hasMutation', 1, 0] },
+            },
+            count_no_mutations: {
+              $sum: { $cond: ['$hasMutation', 0, 1] },
+            },
+          },
+        },
+      ])
+      .exec();
+
+    const aggregationObj = aggregation.pop();
+    return {
+      count_mutations: aggregationObj.count_mutations,
+      count_no_mutations: aggregationObj.count_no_mutations,
+      ratio: aggregationObj.count_mutations / aggregationObj.count_no_mutations,
+    };
   }
 
   findOne(id: number) {
