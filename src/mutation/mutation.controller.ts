@@ -105,14 +105,7 @@ export class MutationController {
           } else {
             horizontalMutation = false;
           }
-        }
-      }
-    }
 
-    for (let i = 0; i < s.length; i++) {
-      const rowToArray = s[i].split('');
-      for (let j = 0; j < rowToArray.length; j++) {
-        if (s.length + 1 - (i + 1) > 3) {
           if (
             s[i].split('')[j] === s[i + 1].split('')[j - 1] &&
             s[i].split('')[j] === s[i + 2].split('')[j - 2] &&
@@ -131,10 +124,7 @@ export class MutationController {
           }
         }
       }
-    }
 
-    for (let i = 0; i < s.length; i++) {
-      const rowToArray = s[i].split('');
       for (let j = rowToArray.length - 1; j >= 0; j--) {
         if (s.length + 1 - (i + 1) > 3) {
           if (
